@@ -49,6 +49,19 @@ We would like to extend our thanks to the following sponsors for funding Laravel
 - **[byte5](https://byte5.de)**
 - **[OP.GG](https://op.gg)**
 
+## Seeding
+
+Le seeder `database/seeders/DatabaseSeeder.php` crée un compte admin (Filament) et un compte utilisateur classique (app Vue). Ces identifiants ne sont **pas** codés en dur : ils doivent être définis dans votre `.env` (jamais commité) avant de lancer le seeder :
+
+```
+SEED_ADMIN_EMAIL=
+SEED_ADMIN_PASSWORD=
+SEED_USER_EMAIL=
+SEED_USER_PASSWORD=
+```
+
+Sans ces variables, `php artisan db:seed` (ou `php artisan migrate:fresh --seed`) échoue avec un message explicite plutôt que de créer des comptes avec un mot de passe par défaut.
+
 ## Contributing
 
 Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
