@@ -1,0 +1,6 @@
+# Assets publiés par Filament/Livewire (minifiés, générés)
+public/js/
+public/css/
+public/vendor/
+bootstrap/cache/
+storage/
