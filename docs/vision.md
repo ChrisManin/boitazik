@@ -38,7 +38,7 @@
 - `albums` (l'œuvre, release-group MusicBrainz) : title, type (album/EP/live/compil…), first_release_year, mbid (unique), spotify_id, cover_url, enriched_at
 - `album_artist` (pivot, collaborations) : album_id, artist_id, position
 - `releases` (l'édition) : album_id, format (enum `ReleaseFormat` : CD, Vinyl, Cassette…), label, catalog_number, country, release_year, barcode (indexé), mbid (unique)
-- `collection_items` (l'exemplaire possédé) : user_id, album_id, release_id (nullable), condition, acquired_at, notes
+- `collection_items` (l'exemplaire possédé) : user_id, album_id, release_id (nullable), condition (enum `ItemCondition`, échelle Goldmine), acquired_at, notes
 - Plus tard : `spotify_accounts` (tokens chiffrés), `tracks` si besoin
 
 ## Roadmap initiale (à transformer en tickets)
