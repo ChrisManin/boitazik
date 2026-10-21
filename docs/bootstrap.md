@@ -1,5 +1,7 @@
 # Bootstrap : workflow Claude Code ↔ GitHub
 
+> **Historique** : installation d'origine sous Windows natif. Pour installer un poste aujourd'hui, voir `docs/installation.md` (WSL).
+
 > Aide-mémoire pour la mise en place. À supprimer (ou garder comme trace) une fois le ticket de bootstrap terminé.
 > Plan complet : `C:\Users\cmn\.claude\plans\serene-weaving-kernighan.md`
 
