@@ -28,6 +28,7 @@ Vision, décisions et schéma cible : `docs/vision.md`. À lire en session de pl
   - `/start-task <N>` : branche, ticket en In Progress, puis mode plan
   - `/finish-task` : tests, Pint, PR « Closes #N », ticket en In review. Le merge ferme le ticket et l'automatisation du Project le passe en Done
 - Après le merge : `/clear` avant le ticket suivant
+- Ne jamais supprimer les branches `task/*`, ni en local ni sur le dépôt distant, même après le merge
 
 ## graphify
 
