@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/session-start.ps1",
+            "command": "php .claude/hooks/session-start.php",
             "timeout": 10
           }
         ]
