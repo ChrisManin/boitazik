@@ -20,6 +20,7 @@
 
 - **Multi-utilisateur** : chaque compte a sa propre collection. Le catalogue (artistes, albums, éditions) est partagé.
 - **Exemplaire précis** : on enregistre l'édition (pressage) : format, label, n° de catalogue, pays, année, code-barres. L'édition peut rester inconnue (on ne connaît alors que l'album).
+- **Front et back-office séparés** : toutes les pages et tous les formulaires des utilisateurs sont en Vue 3 + Inertia. Filament `/admin` est réservé aux administrateurs, qui y gèrent le catalogue et les collections de tous les utilisateurs. Aucune fonctionnalité utilisateur dans Filament.
 - **Tests** : TDD par tranche verticale. Les tests ne touchent jamais la base de dev (sqlite `:memory:`), et aucun appel HTTP réel en test (`Http::fake()`).
 
 ## API externes (proposition, à confirmer ticket par ticket)
