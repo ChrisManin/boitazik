@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\CollectionItem;
+use App\Models\User;
+
+class CollectionItemPolicy
+{
+    /**
+     * Any authenticated user can list their own collection.
+     */
+    public function viewAny(User $user): bool
+    {
+        return true;
+    }
+
+    public function view(User $user, CollectionItem $item): bool
+    {
+        return $item->user_id === $user->id;
+    }
+}
