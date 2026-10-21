@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\AddAlbumToCollection;
+use App\Enums\ItemCondition;
+use App\Enums\ReleaseFormat;
+use App\Http\Requests\StoreCollectionItemRequest;
 use App\Http\Resources\CollectionItemResource;
 use App\Models\Album;
 use App\Models\CollectionItem;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -36,5 +41,29 @@ class CollectionItemController extends Controller
         return Inertia::render('Collection/Index', [
             'items' => CollectionItemResource::collection($items),
         ]);
+    }
+
+    public function create(): Response
+    {
+        $this->authorize('create', CollectionItem::class);
+
+        $options = fn (array $cases) => array_map(
+            fn (ReleaseFormat|ItemCondition $case) => ['value' => $case->value, 'label' => $case->label()],
+            $cases,
+        );
+
+        return Inertia::render('Collection/Create', [
+            'formats' => $options(ReleaseFormat::cases()),
+            'conditions' => $options(ItemCondition::cases()),
+        ]);
+    }
+
+    public function store(StoreCollectionItemRequest $request, AddAlbumToCollection $addAlbum): RedirectResponse
+    {
+        $this->authorize('create', CollectionItem::class);
+
+        $addAlbum->handle($request->user(), $request->validated());
+
+        return redirect()->route('collection.index')->with('success', 'Album ajouté à votre collection.');
     }
 }

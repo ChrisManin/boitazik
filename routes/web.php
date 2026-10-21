@@ -32,6 +32,8 @@ Route::get('/dashboard', function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/collection', [CollectionItemController::class, 'index'])->name('collection.index');
+    Route::get('/collection/create', [CollectionItemController::class, 'create'])->name('collection.create');
+    Route::post('/collection', [CollectionItemController::class, 'store'])->name('collection.store');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -25,11 +25,27 @@ function paginationLabel(link: PaginationLink): string {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Ma collection</h2>
+            <div class="flex items-center justify-between gap-4">
+                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Ma collection</h2>
+                <Link
+                    :href="route('collection.create')"
+                    class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150"
+                >
+                    Ajouter un album
+                </Link>
+            </div>
         </template>
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div
+                    v-if="$page.props.flash.success"
+                    class="mb-6 rounded-lg bg-green-50 dark:bg-green-900/40 p-4 text-sm font-medium text-green-800 dark:text-green-200"
+                    role="status"
+                >
+                    {{ $page.props.flash.success }}
+                </div>
+
                 <div
                     v-if="items.data.length === 0"
                     class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6 text-gray-900 dark:text-gray-100"

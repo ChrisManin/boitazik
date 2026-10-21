@@ -19,4 +19,12 @@ class CollectionItemPolicy
     {
         return $item->user_id === $user->id;
     }
+
+    /**
+     * Any authenticated user can add items to their own collection.
+     */
+    public function create(User $user): bool
+    {
+        return true;
+    }
 }
