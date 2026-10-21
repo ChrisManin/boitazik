@@ -33,6 +33,9 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make($user['password']),
             'is_admin' => false,
         ]);
+
+        // Collection de démonstration pour l'utilisateur classique
+        $this->call(DemoCollectionSeeder::class);
     }
 
     /**
