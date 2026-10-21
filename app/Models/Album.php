@@ -6,6 +6,7 @@ use App\Enums\AlbumType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Album extends Model
 {
@@ -42,5 +43,10 @@ class Album extends Model
         return $this->belongsToMany(Artist::class)
             ->withPivot('position')
             ->orderByPivot('position');
+    }
+
+    public function releases(): HasMany
+    {
+        return $this->hasMany(Release::class);
     }
 }
