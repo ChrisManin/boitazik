@@ -1,4 +1,24 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(php artisan test)",
+      "Bash(php artisan test *)",
+      "Bash(vendor/bin/pint)",
+      "Bash(vendor/bin/pint *)",
+      "Bash(npm run build)",
+      "Bash(graphify *)",
+      "Bash(git status)",
+      "Bash(git status *)",
+      "Bash(git diff)",
+      "Bash(git diff *)",
+      "Bash(git log)",
+      "Bash(git log *)",
+      "Bash(git branch)",
+      "Bash(git branch --show-current)",
+      "Bash(git branch -a)",
+      "Bash(git branch --list *)"
+    ]
+  },
   "hooks": {
     "SessionStart": [
       {
@@ -29,6 +49,18 @@
             "type": "command",
             "command": "graphify hook-guard read",
             "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "php .claude/hooks/pint.php",
+            "timeout": 30
           }
         ]
       }

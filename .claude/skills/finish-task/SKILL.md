@@ -18,3 +18,5 @@ Wrap up the ticket for the current branch.
 8. Reply in French with the PR link, then remind the user:
    - reviewing and merging is their job (on GitHub, or by asking Claude). The merge closes #N and the Project automation moves it to Done;
    - after the merge: `/clear`, then `/start-task <next>` or a planning session.
+
+Never delete the `task/*` branch, locally or on `origin`, even after the merge (no `git branch -d/-D`, no `git push --delete`, no branch deletion when merging).
