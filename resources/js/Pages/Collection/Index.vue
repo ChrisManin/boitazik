@@ -77,6 +77,12 @@ function paginationLabel(link: PaginationLink): string {
                                     <span v-if="item.year && item.format"> · </span>
                                     <span v-if="item.format">{{ item.format }}</span>
                                 </p>
+                                <Link
+                                    :href="route('collection.edit', item.id)"
+                                    class="mt-2 inline-block text-indigo-600 dark:text-indigo-400 hover:underline"
+                                >
+                                    Modifier
+                                </Link>
                             </div>
                         </li>
                     </ul>

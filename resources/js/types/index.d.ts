@@ -14,6 +14,13 @@ export interface CollectionItem {
     format: string | null;
 }
 
+// A copy as loaded in the edit form: format holds the enum value, not its label
+export interface EditableCollectionItem extends CollectionItem {
+    condition: string | null;
+    acquired_at: string | null;
+    notes: string | null;
+}
+
 // An enum case offered in a form select
 export interface SelectOption {
     value: string;

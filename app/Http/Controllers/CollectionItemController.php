@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Actions\AddAlbumToCollection;
+use App\Actions\UpdateCollectionItem;
 use App\Enums\ItemCondition;
 use App\Enums\ReleaseFormat;
 use App\Http\Requests\StoreCollectionItemRequest;
+use App\Http\Requests\UpdateCollectionItemRequest;
 use App\Http\Resources\CollectionItemResource;
+use App\Http\Resources\EditableCollectionItemResource;
 use App\Models\Album;
 use App\Models\CollectionItem;
 use Illuminate\Http\RedirectResponse;
@@ -47,15 +50,7 @@ class CollectionItemController extends Controller
     {
         $this->authorize('create', CollectionItem::class);
 
-        $options = fn (array $cases) => array_map(
-            fn (ReleaseFormat|ItemCondition $case) => ['value' => $case->value, 'label' => $case->label()],
-            $cases,
-        );
-
-        return Inertia::render('Collection/Create', [
-            'formats' => $options(ReleaseFormat::cases()),
-            'conditions' => $options(ItemCondition::cases()),
-        ]);
+        return Inertia::render('Collection/Create', $this->formOptions());
     }
 
     public function store(StoreCollectionItemRequest $request, AddAlbumToCollection $addAlbum): RedirectResponse
@@ -65,5 +60,47 @@ class CollectionItemController extends Controller
         $addAlbum->handle($request->user(), $request->validated());
 
         return redirect()->route('collection.index')->with('success', 'Album ajouté à votre collection.');
+    }
+
+    public function edit(CollectionItem $item): Response
+    {
+        $this->authorize('update', $item);
+
+        $item->load('album.artists', 'release');
+
+        return Inertia::render('Collection/Edit', [
+            'item' => (new EditableCollectionItemResource($item))->resolve(),
+            ...$this->formOptions(),
+        ]);
+    }
+
+    public function update(UpdateCollectionItemRequest $request, CollectionItem $item, UpdateCollectionItem $updateItem): RedirectResponse
+    {
+        $this->authorize('update', $item);
+
+        $updateItem->handle($item, $request->validated());
+
+        return redirect()->route('collection.index')->with('success', 'Exemplaire modifié.');
+    }
+
+    // Only the copy is removed: the shared catalog stays
+    public function destroy(CollectionItem $item): RedirectResponse
+    {
+        $this->authorize('delete', $item);
+
+        $item->delete();
+
+        return redirect()->route('collection.index')->with('success', 'Album retiré de votre collection.');
+    }
+
+    /**
+     * @return array{formats: list<array{value: string, label: string}>, conditions: list<array{value: string, label: string}>}
+     */
+    private function formOptions(): array
+    {
+        return [
+            'formats' => ReleaseFormat::options(),
+            'conditions' => ItemCondition::options(),
+        ];
     }
 }
