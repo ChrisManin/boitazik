@@ -27,6 +27,7 @@ Vision, décisions et schéma cible : `docs/vision.md`. À lire en session de pl
   - `/plan-tickets` : transforme un plan validé en tickets (sur `main`)
   - `/start-task <N>` : branche, ticket en In Progress, puis mode plan
   - `/finish-task` : tests, Pint, PR « Closes #N », ticket en In review. Le merge ferme le ticket et l'automatisation du Project le passe en Done
+- Workflows natifs attendus dans le Project 3 : « Pull request linked to issue » → In review ; « Item closed » et « Pull request merged » → Done. Le MCP ne lit pas ces réglages : en cas de statut inattendu, voir la chronologie du ticket (événements `github-project-automation`)
 - Après le merge : `/clear` avant le ticket suivant
 - Ne jamais supprimer les branches `task/*`, ni en local ni sur le dépôt distant, même après le merge
 
