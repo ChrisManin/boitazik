@@ -14,6 +14,12 @@ export interface CollectionItem {
     format: string | null;
 }
 
+// An enum case offered in a form select
+export interface SelectOption {
+    value: string;
+    label: string;
+}
+
 export interface PaginationLink {
     url: string | null;
     label: string;
@@ -41,5 +47,8 @@ export interface Paginated<T> {
 export type PageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
     auth: {
         user: User;
+    };
+    flash: {
+        success: string | null;
     };
 };
