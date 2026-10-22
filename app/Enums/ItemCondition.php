@@ -2,9 +2,13 @@
 
 namespace App\Enums;
 
+use App\Enums\Concerns\HasSelectOptions;
+
 // Goldmine grading scale used by record collectors
 enum ItemCondition: string
 {
+    use HasSelectOptions;
+
     case Mint = 'mint';
     case NearMint = 'near_mint';
     case VeryGoodPlus = 'very_good_plus';

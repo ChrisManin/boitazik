@@ -27,4 +27,14 @@ class CollectionItemPolicy
     {
         return true;
     }
+
+    public function update(User $user, CollectionItem $item): bool
+    {
+        return $this->view($user, $item);
+    }
+
+    public function delete(User $user, CollectionItem $item): bool
+    {
+        return $this->view($user, $item);
+    }
 }

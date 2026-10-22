@@ -6,7 +6,6 @@ use App\Enums\ReleaseFormat;
 use App\Models\Album;
 use App\Models\Artist;
 use App\Models\CollectionItem;
-use App\Models\Release;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -24,7 +23,7 @@ class AddAlbumToCollection
             $album = $this->findOrCreateAlbum($artist, $data['title'], $year);
 
             $format = isset($data['format']) ? ReleaseFormat::from($data['format']) : null;
-            $release = $format ? $this->findOrCreateRelease($album, $format) : null;
+            $release = $format ? $album->minimalRelease($format) : null;
 
             return $user->collectionItems()->create([
                 'album_id' => $album->id,
@@ -62,19 +61,5 @@ class AddAlbumToCollection
         }
 
         return $album;
-    }
-
-    // Only a release with no detail is reused: a detailed one is a specific pressing
-    private function findOrCreateRelease(Album $album, ReleaseFormat $format): Release
-    {
-        return $album->releases()->firstOrCreate([
-            'format' => $format,
-            'label' => null,
-            'catalog_number' => null,
-            'country' => null,
-            'release_year' => null,
-            'barcode' => null,
-            'mbid' => null,
-        ]);
     }
 }

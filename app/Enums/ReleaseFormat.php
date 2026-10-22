@@ -2,8 +2,12 @@
 
 namespace App\Enums;
 
+use App\Enums\Concerns\HasSelectOptions;
+
 enum ReleaseFormat: string
 {
+    use HasSelectOptions;
+
     case Cd = 'cd';
     case Vinyl = 'vinyl';
     case Cassette = 'cassette';

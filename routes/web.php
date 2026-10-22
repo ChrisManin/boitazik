@@ -31,9 +31,9 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/collection', [CollectionItemController::class, 'index'])->name('collection.index');
-    Route::get('/collection/create', [CollectionItemController::class, 'create'])->name('collection.create');
-    Route::post('/collection', [CollectionItemController::class, 'store'])->name('collection.store');
+    Route::resource('collection', CollectionItemController::class)
+        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
+        ->parameters(['collection' => 'item']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
