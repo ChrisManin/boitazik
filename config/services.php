@@ -31,4 +31,17 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'musicbrainz' => [
+        'base_url' => env('MUSICBRAINZ_BASE_URL') ?: 'https://musicbrainz.org/ws/2',
+        'user_agent' => env('MUSICBRAINZ_USER_AGENT') ?: 'Boitazik/0.1 ( https://github.com/ChrisManin/boitazik )',
+        'timeout' => 10,
+        'requests_per_second' => 1,
+    ],
+
+    'coverartarchive' => [
+        'base_url' => env('COVERARTARCHIVE_BASE_URL') ?: 'https://coverartarchive.org',
+        'user_agent' => env('MUSICBRAINZ_USER_AGENT') ?: 'Boitazik/0.1 ( https://github.com/ChrisManin/boitazik )',
+        'timeout' => 10,
+    ],
+
 ];
