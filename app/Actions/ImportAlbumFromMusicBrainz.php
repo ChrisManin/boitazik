@@ -26,8 +26,13 @@ class ImportAlbumFromMusicBrainz
      */
     public function handle(string $mbid): Album
     {
+        return $this->fromReleaseGroup($this->musicBrainz->lookupReleaseGroup($mbid));
+    }
+
+    // For a release group already fetched, with its credits (from a release lookup, for instance)
+    public function fromReleaseGroup(ReleaseGroup $releaseGroup): Album
+    {
         // HTTP calls stay outside the transaction: no lock is held while waiting for the APIs
-        $releaseGroup = $this->musicBrainz->lookupReleaseGroup($mbid);
         $coverUrl = $this->coverUrl($releaseGroup->mbid);
 
         return DB::transaction(function () use ($releaseGroup, $coverUrl) {

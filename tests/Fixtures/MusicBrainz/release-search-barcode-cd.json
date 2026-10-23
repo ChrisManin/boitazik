@@ -1,0 +1,49 @@
+{
+    "count": 1,
+    "offset": 0,
+    "releases": [
+        {
+            "id": "5eceb9ff-d7d2-31b8-b070-d6b7ab588611",
+            "title": "Aerial",
+            "status": "Official",
+            "date": "2005-11-08",
+            "country": "US",
+            "barcode": "0827969777220",
+            "artist-credit": [
+                {
+                    "name": "Kate Bush",
+                    "joinphrase": "",
+                    "artist": {
+                        "id": "4b585938-f271-45e2-b19a-91c634b5e396",
+                        "name": "Kate Bush",
+                        "sort-name": "Bush, Kate"
+                    }
+                }
+            ],
+            "release-group": {
+                "id": "6169f5bc-b5ff-3348-b806-1b0f2a414217",
+                "title": "Aerial",
+                "primary-type": "Album"
+            },
+            "label-info": [
+                {
+                    "catalog-number": "82796 97772 2",
+                    "label": {
+                        "id": "011d1192-6f65-45bd-85c4-0400dd45693e",
+                        "name": "Columbia"
+                    }
+                }
+            ],
+            "media": [
+                {
+                    "format": "CD",
+                    "track-count": 7
+                },
+                {
+                    "format": "CD",
+                    "track-count": 9
+                }
+            ]
+        }
+    ]
+}

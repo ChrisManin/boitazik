@@ -71,3 +71,16 @@ export interface MusicBrainzResult {
     // Built without checking the image exists: it may 404
     cover_url: string;
 }
+
+// One physical edition found by barcode
+export interface MusicBrainzEdition {
+    release_mbid: string;
+    album: MusicBrainzResult;
+    // Already a French label (CD, Vinyle…)
+    format: string;
+    label: string | null;
+    catalog_number: string | null;
+    country: string | null;
+    year: number | null;
+    barcode: string | null;
+}

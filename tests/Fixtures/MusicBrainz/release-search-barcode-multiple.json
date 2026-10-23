@@ -1,0 +1,137 @@
+{
+    "count": 3,
+    "offset": 0,
+    "releases": [
+        {
+            "id": "6a09041b-0f79-3278-88d9-0552dd28d37f",
+            "title": "OK Computer",
+            "status": "Official",
+            "date": "1997-07-01",
+            "country": "US",
+            "barcode": "724385522925",
+            "artist-credit": [
+                {
+                    "name": "Radiohead",
+                    "joinphrase": "",
+                    "artist": {
+                        "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+                        "name": "Radiohead",
+                        "sort-name": "Radiohead"
+                    }
+                }
+            ],
+            "release-group": {
+                "id": "b1392450-e666-3926-a536-22c65f834433",
+                "title": "OK Computer",
+                "primary-type": "Album"
+            },
+            "label-info": [
+                {
+                    "catalog-number": "CDP 7243 8 55229 2 5",
+                    "label": {
+                        "id": "abea2d3e-eabf-4480-ab24-9382dd642c73",
+                        "name": "Capitol Records"
+                    }
+                }
+            ],
+            "media": [
+                {
+                    "format": "CD",
+                    "track-count": 12
+                }
+            ]
+        },
+        {
+            "id": "425d8db9-88a3-31e2-bd23-b1a967626dd5",
+            "title": "OK Computer",
+            "status": "Official",
+            "date": "1997-06-16",
+            "country": "FR",
+            "barcode": "724385522925",
+            "artist-credit": [
+                {
+                    "name": "Radiohead",
+                    "joinphrase": "",
+                    "artist": {
+                        "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+                        "name": "Radiohead",
+                        "sort-name": "Radiohead"
+                    }
+                }
+            ],
+            "release-group": {
+                "id": "b1392450-e666-3926-a536-22c65f834433",
+                "title": "OK Computer",
+                "primary-type": "Album"
+            },
+            "label-info": [
+                {
+                    "catalog-number": "7243 8 55229 2 5",
+                    "label": {
+                        "id": "df7d1c7f-ef95-425f-8eef-445b3d7bcbd9",
+                        "name": "Parlophone"
+                    }
+                },
+                {
+                    "catalog-number": "CDNODATA 02",
+                    "label": {
+                        "id": "df7d1c7f-ef95-425f-8eef-445b3d7bcbd9",
+                        "name": "Parlophone"
+                    }
+                }
+            ],
+            "media": [
+                {
+                    "format": "CD",
+                    "track-count": 12
+                }
+            ]
+        },
+        {
+            "id": "c7569949-0f67-4682-a0d8-75c4290c52dc",
+            "title": "OK Computer",
+            "status": "Official",
+            "date": "1997-06-16",
+            "country": "GB",
+            "barcode": "724385522925",
+            "artist-credit": [
+                {
+                    "name": "Radiohead",
+                    "joinphrase": "",
+                    "artist": {
+                        "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+                        "name": "Radiohead",
+                        "sort-name": "Radiohead"
+                    }
+                }
+            ],
+            "release-group": {
+                "id": "b1392450-e666-3926-a536-22c65f834433",
+                "title": "OK Computer",
+                "primary-type": "Album"
+            },
+            "label-info": [
+                {
+                    "catalog-number": "7243 8 55229 2 5",
+                    "label": {
+                        "id": "df7d1c7f-ef95-425f-8eef-445b3d7bcbd9",
+                        "name": "Parlophone"
+                    }
+                },
+                {
+                    "catalog-number": "CDNODATA 02",
+                    "label": {
+                        "id": "df7d1c7f-ef95-425f-8eef-445b3d7bcbd9",
+                        "name": "Parlophone"
+                    }
+                }
+            ],
+            "media": [
+                {
+                    "format": "CD",
+                    "track-count": 12
+                }
+            ]
+        }
+    ]
+}
