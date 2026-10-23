@@ -1,0 +1,49 @@
+{
+    "count": 1,
+    "offset": 0,
+    "releases": [
+        {
+            "id": "956f88c9-bd6f-40cb-a90c-89206ed7315b",
+            "title": "Made in Heaven",
+            "status": "Official",
+            "date": "2015-09-25",
+            "country": "XE",
+            "barcode": "602547288271",
+            "artist-credit": [
+                {
+                    "name": "Queen",
+                    "joinphrase": "",
+                    "artist": {
+                        "id": "0383dadf-2a4e-4d10-a46a-e9e041da8eb3",
+                        "name": "Queen",
+                        "sort-name": "Queen"
+                    }
+                }
+            ],
+            "release-group": {
+                "id": "780e6a16-9384-307d-ae65-02e1d6313753",
+                "title": "Made in Heaven",
+                "primary-type": "Album"
+            },
+            "label-info": [
+                {
+                    "catalog-number": "00602547288271",
+                    "label": {
+                        "id": "512e8486-bfbe-4779-b029-c364209cbb9c",
+                        "name": "Virgin EMI Records"
+                    }
+                }
+            ],
+            "media": [
+                {
+                    "format": "12\" Vinyl",
+                    "track-count": 7
+                },
+                {
+                    "format": "12\" Vinyl",
+                    "track-count": 5
+                }
+            ]
+        }
+    ]
+}

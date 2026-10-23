@@ -11,6 +11,8 @@ defineProps<{
     form: Record<CopyField, string> & { errors: Partial<Record<CopyField, string>> };
     formats: SelectOption[];
     conditions: SelectOption[];
+    // An edition found by barcode already gives the format
+    hideFormat?: boolean;
 }>();
 
 const fieldClass =
@@ -22,7 +24,7 @@ const fieldClass =
     <div class="grid gap-6 sm:grid-cols-2">
         <slot />
 
-        <div>
+        <div v-if="!hideFormat">
             <InputLabel for="format" value="Format" />
             <select id="format" :class="fieldClass" v-model="form.format">
                 <option value="">Inconnu</option>

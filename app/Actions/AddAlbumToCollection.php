@@ -12,25 +12,30 @@ use Illuminate\Support\Facades\DB;
 // Adds a copy to a user's collection, reusing the shared catalog to avoid duplicates
 class AddAlbumToCollection
 {
-    public function __construct(private readonly ImportAlbumFromMusicBrainz $importAlbum) {}
+    public function __construct(
+        private readonly ImportAlbumFromMusicBrainz $importAlbum,
+        private readonly ImportReleaseFromMusicBrainz $importRelease,
+    ) {}
 
     /**
-     * Either an MBID (album imported from MusicBrainz) or a manual artist and title.
+     * Either a release MBID (exact edition, found by barcode), an MBID (album imported from MusicBrainz),
+     * or a manual artist and title.
      *
-     * @param  array{mbid?: ?string, artist?: string, title?: string, year?: ?int, format?: ?string, condition?: ?string, acquired_at?: ?string, notes?: ?string}  $data
+     * @param  array{release_mbid?: ?string, mbid?: ?string, artist?: string, title?: string, year?: ?int, format?: ?string, condition?: ?string, acquired_at?: ?string, notes?: ?string}  $data
      *
      * @throws \Illuminate\Http\Client\RequestException|\Illuminate\Http\Client\ConnectionException when the MusicBrainz import fails
      */
     public function handle(User $user, array $data): CollectionItem
     {
-        // The import calls the APIs: it runs before the copy's transaction
-        $imported = isset($data['mbid']) ? $this->importAlbum->handle($data['mbid']) : null;
+        // The imports call the APIs: they run before the copy's transaction
+        $importedRelease = isset($data['release_mbid']) ? $this->importRelease->handle($data['release_mbid']) : null;
+        $importedAlbum = isset($data['mbid']) ? $this->importAlbum->handle($data['mbid']) : null;
 
-        return DB::transaction(function () use ($user, $data, $imported) {
-            $album = $imported ?? $this->findOrCreateManualAlbum($data);
+        return DB::transaction(function () use ($user, $data, $importedRelease, $importedAlbum) {
+            $album = $importedRelease?->album ?? $importedAlbum ?? $this->findOrCreateManualAlbum($data);
 
             $format = isset($data['format']) ? ReleaseFormat::from($data['format']) : null;
-            $release = $format ? $album->minimalRelease($format) : null;
+            $release = $importedRelease ?? ($format ? $album->minimalRelease($format) : null);
 
             return $user->collectionItems()->create([
                 'album_id' => $album->id,

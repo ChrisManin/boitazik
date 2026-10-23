@@ -119,7 +119,6 @@ const status = computed(() => {
                     class="mt-1 block w-full"
                     v-model="title"
                     autocomplete="off"
-                    autofocus
                 />
             </div>
 

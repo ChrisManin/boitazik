@@ -2,6 +2,7 @@
 
 namespace App\Services\MusicBrainz;
 
+use App\Services\MusicBrainz\Data\Release;
 use App\Services\MusicBrainz\Data\ReleaseGroup;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
@@ -38,6 +39,48 @@ final class MusicBrainzClient
             ->throw();
 
         return ReleaseGroup::fromArray($response->json());
+    }
+
+    /**
+     * Editions printed with this barcode, as an EAN-13 or a UPC-A.
+     *
+     * @return array<int, Release>
+     */
+    public function findReleasesByBarcode(string $barcode): array
+    {
+        $digits = preg_replace('/\D/', '', $barcode);
+
+        if ($digits === '') {
+            return [];
+        }
+
+        $response = $this->request()
+            ->get('release', ['query' => 'barcode:'.$this->barcodeVariants($digits), 'limit' => 25, 'fmt' => 'json'])
+            ->throw();
+
+        return array_map(
+            fn (array $item) => Release::fromArray($item),
+            $response->json('releases', []),
+        );
+    }
+
+    public function lookupRelease(string $mbid): Release
+    {
+        $response = $this->request()
+            ->get("release/{$mbid}", ['inc' => 'labels release-groups artist-credits media', 'fmt' => 'json'])
+            ->throw();
+
+        return Release::fromArray($response->json());
+    }
+
+    // A UPC-A is an EAN-13 without its leading zero: MusicBrainz may hold either form
+    private function barcodeVariants(string $digits): string
+    {
+        return match (true) {
+            strlen($digits) === 12 => "({$digits} OR 0{$digits})",
+            strlen($digits) === 13 && $digits[0] === '0' => "({$digits} OR ".substr($digits, 1).')',
+            default => $digits,
+        };
     }
 
     /**

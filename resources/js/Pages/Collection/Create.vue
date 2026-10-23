@@ -5,12 +5,14 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { MusicBrainzResult, SelectOption } from '@/types';
+import { MusicBrainzEdition, MusicBrainzResult, SelectOption } from '@/types';
 import AlbumSummary from './Partials/AlbumSummary.vue';
+import BarcodeSearch from './Partials/BarcodeSearch.vue';
 import CopyFields from './Partials/CopyFields.vue';
+import EditionSummary from './Partials/EditionSummary.vue';
 import MusicBrainzSearch from './Partials/MusicBrainzSearch.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 
 defineProps<{
     formats: SelectOption[];
@@ -18,8 +20,10 @@ defineProps<{
 }>();
 
 // Empty strings are converted to null by Laravel.
+// When release_mbid is set, the server imports the edition and ignores mbid, artist, title, year and format.
 // When mbid is set, the server imports the album and ignores artist, title and year.
 const form = useForm({
+    release_mbid: '',
     mbid: '',
     artist: '',
     title: '',
@@ -33,18 +37,33 @@ const form = useForm({
 // Search MusicBrainz by default, manual entry as a fallback
 const mode = ref<'search' | 'manual'>('search');
 const selected = ref<MusicBrainzResult | null>(null);
+const selectedEdition = ref<MusicBrainzEdition | null>(null);
 const searchError = ref<string | null>(null);
 
 function select(result: MusicBrainzResult) {
+    clearSelection();
     selected.value = result;
     form.mbid = result.mbid;
-    form.clearErrors('mbid');
+}
+
+function selectEdition(edition: MusicBrainzEdition) {
+    clearSelection();
+    selectedEdition.value = edition;
+    form.release_mbid = edition.release_mbid;
 }
 
 function clearSelection() {
     selected.value = null;
+    selectedEdition.value = null;
     form.mbid = '';
-    form.clearErrors('mbid');
+    form.release_mbid = '';
+    form.clearErrors('mbid', 'release_mbid');
+}
+
+// Unknown barcode: the title search is the next step
+async function focusTitleSearch() {
+    await nextTick();
+    document.getElementById('search_title')?.focus();
 }
 
 function switchTo(newMode: 'search' | 'manual') {
@@ -72,7 +91,17 @@ const linkClass =
                     class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6 space-y-6"
                 >
                     <template v-if="mode === 'search'">
-                        <div v-if="selected" class="space-y-2">
+                        <div v-if="selectedEdition" class="space-y-2">
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Édition choisie</p>
+                            <div
+                                class="flex items-center justify-between gap-4 rounded-md border border-indigo-300 dark:border-indigo-700 p-2"
+                            >
+                                <EditionSummary :edition="selectedEdition" />
+                                <SecondaryButton @click="clearSelection">Changer</SecondaryButton>
+                            </div>
+                        </div>
+
+                        <div v-else-if="selected" class="space-y-2">
                             <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Album choisi</p>
                             <div
                                 class="flex items-center justify-between gap-4 rounded-md border border-indigo-300 dark:border-indigo-700 p-2"
@@ -82,19 +111,30 @@ const linkClass =
                             </div>
                         </div>
 
-                        <MusicBrainzSearch v-else @select="select" @error="searchError = $event" />
+                        <template v-else>
+                            <BarcodeSearch @select="selectEdition" @not-found="focusTitleSearch" @error="searchError = $event" />
 
+                            <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400" aria-hidden="true">
+                                <span class="h-px flex-1 bg-gray-200 dark:bg-gray-700"></span>
+                                ou par titre
+                                <span class="h-px flex-1 bg-gray-200 dark:bg-gray-700"></span>
+                            </div>
+
+                            <MusicBrainzSearch @select="select" @error="searchError = $event" />
+                        </template>
+
+                        <InputError :message="form.errors.release_mbid" />
                         <InputError :message="form.errors.mbid" />
 
                         <!-- MusicBrainz is down: manual entry becomes the way forward -->
                         <div
-                            v-if="searchError && !selected"
+                            v-if="searchError && !selected && !selectedEdition"
                             class="rounded-md bg-yellow-50 dark:bg-yellow-900/30 p-4 text-sm text-yellow-800 dark:text-yellow-200"
                         >
                             <p>Vous pouvez saisir l'album à la main en attendant.</p>
                             <SecondaryButton class="mt-3" @click="switchTo('manual')">Saisir l'album à la main</SecondaryButton>
                         </div>
-                        <button v-else-if="!selected" type="button" :class="linkClass" @click="switchTo('manual')">
+                        <button v-else-if="!selected && !selectedEdition" type="button" :class="linkClass" @click="switchTo('manual')">
                             Je ne trouve pas mon album
                         </button>
                     </template>
@@ -126,6 +166,13 @@ const linkClass =
                         </div>
                     </CopyFields>
                     <CopyFields v-else-if="selected" :form="form" :formats="formats" :conditions="conditions" />
+                    <CopyFields
+                        v-else-if="selectedEdition"
+                        :form="form"
+                        :formats="formats"
+                        :conditions="conditions"
+                        hide-format
+                    />
 
                     <div class="flex items-center justify-end gap-4">
                         <Link
@@ -134,7 +181,7 @@ const linkClass =
                         >
                             Annuler
                         </Link>
-                        <PrimaryButton v-if="mode === 'manual' || selected" :disabled="form.processing">Ajouter</PrimaryButton>
+                        <PrimaryButton v-if="mode === 'manual' || selected || selectedEdition" :disabled="form.processing">Ajouter</PrimaryButton>
                     </div>
                 </form>
             </div>
