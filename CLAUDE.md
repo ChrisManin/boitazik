@@ -8,6 +8,7 @@ Vision, décisions et schéma cible : `docs/vision.md`. À lire en session de pl
 - Laravel 10 (PHP 8.1+), Breeze Vue 3 + Inertia + TypeScript, Filament 3 (panel `/admin`), Pest 2, MySQL 8 via Docker (dev)
 - Poste de dev sous WSL. Installation : `docs/installation.md`. Base de dev : `docker compose up -d`
 - Tests : `php artisan test`. Format PHP : `vendor/bin/pint`. Front : `npm run build`
+- File d'attente (`QUEUE_CONNECTION=database`) : `php artisan queue:work` à laisser tourner en dev, sinon les imports de discographie restent en attente
 - Hooks Claude Code en PHP (`.claude/hooks/*.php`), pour tourner sous Windows comme sous WSL
 
 ## Conventions

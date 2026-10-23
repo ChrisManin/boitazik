@@ -1,0 +1,61 @@
+{
+    "release-group-count": 6,
+    "release-group-offset": 3,
+    "release-groups": [
+        {
+            "id": "6e335887-60ba-38f0-95af-fae7774336bf",
+            "title": "In Rainbows",
+            "primary-type": "Album",
+            "secondary-types": [],
+            "first-release-date": "2007-10-10",
+            "artist-credit": [
+                {
+                    "name": "Radiohead",
+                    "joinphrase": "",
+                    "artist": {
+                        "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+                        "name": "Radiohead"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "0c253d8d-2f26-42d4-93b2-3004d2937d39",
+            "title": "Live in Berlin (September 2016) #StayHome #WithMe",
+            "primary-type": "Broadcast",
+            "secondary-types": [
+                "Live"
+            ],
+            "first-release-date": "2020-04-16",
+            "artist-credit": [
+                {
+                    "name": "Radiohead",
+                    "joinphrase": "",
+                    "artist": {
+                        "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+                        "name": "Radiohead"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "270ff9af-bcfb-402c-8e6b-d1372a1e8824",
+            "title": "The Interview",
+            "primary-type": "Album",
+            "secondary-types": [
+                "Interview"
+            ],
+            "first-release-date": "2010-08-23",
+            "artist-credit": [
+                {
+                    "name": "Radiohead",
+                    "joinphrase": "",
+                    "artist": {
+                        "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+                        "name": "Radiohead"
+                    }
+                }
+            ]
+        }
+    ]
+}

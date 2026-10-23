@@ -274,3 +274,59 @@ test('it throws when the barcode search fails', function () {
 
     app(MusicBrainzClient::class)->findReleasesByBarcode('724385522925');
 })->throws(RequestException::class);
+
+test('it browses every page of an artist release groups', function () {
+    Http::fake([
+        'musicbrainz.org/ws/2/release-group*' => Http::sequence()
+            ->push(fixture('MusicBrainz', 'release-group-browse-page-1'))
+            ->push(fixture('MusicBrainz', 'release-group-browse-page-2')),
+    ]);
+
+    $results = app(MusicBrainzClient::class)->browseArtistReleaseGroups('a74b1b7f-71a5-4011-9441-d0b5e4122711');
+
+    expect($results)->toHaveCount(6)->each->toBeInstanceOf(ReleaseGroup::class)
+        ->and(array_map(fn (ReleaseGroup $group) => $group->title, $results))->toBe([
+            'Hail to the Thief',
+            'Lucky',
+            'Greenhouse Effect vs. Radiohead',
+            'In Rainbows',
+            'Live in Berlin (September 2016) #StayHome #WithMe',
+            'The Interview',
+        ])
+        ->and($results[2]->artists[1])->toEqual(new ArtistCredit('a74b1b7f-71a5-4011-9441-d0b5e4122711', 'Radiohead'));
+});
+
+test('it pages through the artist release groups by offset', function () {
+    Http::fake([
+        'musicbrainz.org/ws/2/release-group*' => Http::sequence()
+            ->push(fixture('MusicBrainz', 'release-group-browse-page-1'))
+            ->push(fixture('MusicBrainz', 'release-group-browse-page-2')),
+    ]);
+
+    app(MusicBrainzClient::class)->browseArtistReleaseGroups('a74b1b7f-71a5-4011-9441-d0b5e4122711');
+
+    Http::assertSentCount(2);
+    foreach ([0, 3] as $offset) {
+        Http::assertSent(fn (Request $request) => str_starts_with($request->url(), 'https://musicbrainz.org/ws/2/release-group?')
+            && $request['artist'] === 'a74b1b7f-71a5-4011-9441-d0b5e4122711'
+            && $request['inc'] === 'artist-credits'
+            && (int) $request['limit'] === 100
+            && (int) $request['offset'] === $offset
+            && $request['fmt'] === 'json');
+    }
+});
+
+test('it stops browsing on an empty page', function () {
+    Http::fake([
+        'musicbrainz.org/ws/2/release-group*' => Http::response(['release-group-count' => 10, 'release-group-offset' => 0, 'release-groups' => []]),
+    ]);
+
+    expect(app(MusicBrainzClient::class)->browseArtistReleaseGroups('a74b1b7f-71a5-4011-9441-d0b5e4122711'))->toBe([]);
+    Http::assertSentCount(1);
+});
+
+test('it throws when browsing release groups fails', function () {
+    Http::fake(['musicbrainz.org/*' => Http::response(null, 503)]);
+
+    app(MusicBrainzClient::class)->browseArtistReleaseGroups('a74b1b7f-71a5-4011-9441-d0b5e4122711');
+})->throws(RequestException::class);
