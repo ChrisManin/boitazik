@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Jobs\ImportArtistDiscography;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -33,6 +34,33 @@ class Artist extends Model
     protected $casts = [
         'enriched_at' => 'datetime',
     ];
+
+    // The discography is fetched again from MusicBrainz after this many days
+    public const DISCOGRAPHY_REFRESH_DAYS = 30;
+
+    protected static function booted(): void
+    {
+        // After commit: the job must not run before the artist exists for the queue worker
+        static::created(fn (Artist $artist) => $artist->queueDiscographyImport());
+        static::updated(function (Artist $artist) {
+            if ($artist->wasChanged('mbid')) {
+                $artist->queueDiscographyImport();
+            }
+        });
+    }
+
+    private function queueDiscographyImport(): void
+    {
+        if ($this->mbid !== null && $this->needsDiscographyImport()) {
+            ImportArtistDiscography::dispatch($this)->afterCommit();
+        }
+    }
+
+    public function needsDiscographyImport(): bool
+    {
+        return $this->enriched_at === null
+            || $this->enriched_at->lt(now()->subDays(self::DISCOGRAPHY_REFRESH_DAYS));
+    }
 
     public function albums(): BelongsToMany
     {

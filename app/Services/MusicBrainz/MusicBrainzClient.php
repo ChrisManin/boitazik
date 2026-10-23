@@ -42,6 +42,33 @@ final class MusicBrainzClient
     }
 
     /**
+     * Every release group credited to the artist, all pages fetched.
+     *
+     * @return array<int, ReleaseGroup>
+     */
+    public function browseArtistReleaseGroups(string $artistMbid): array
+    {
+        $releaseGroups = [];
+
+        do {
+            $response = $this->request()
+                ->get('release-group', [
+                    'artist' => $artistMbid,
+                    'inc' => 'artist-credits',
+                    'limit' => 100,
+                    'offset' => count($releaseGroups),
+                    'fmt' => 'json',
+                ])
+                ->throw();
+
+            $page = $response->json('release-groups', []);
+            array_push($releaseGroups, ...array_map(fn (array $item) => ReleaseGroup::fromArray($item), $page));
+        } while ($page !== [] && count($releaseGroups) < $response->json('release-group-count', 0));
+
+        return $releaseGroups;
+    }
+
+    /**
      * Editions printed with this barcode, as an EAN-13 or a UPC-A.
      *
      * @return array<int, Release>

@@ -1,0 +1,67 @@
+{
+    "release-group-count": 6,
+    "release-group-offset": 0,
+    "release-groups": [
+        {
+            "id": "5c14fd50-a2f1-3672-9537-b0dad91bea2f",
+            "title": "Hail to the Thief",
+            "primary-type": "Album",
+            "secondary-types": [],
+            "first-release-date": "2003-05-26",
+            "artist-credit": [
+                {
+                    "name": "Radiohead",
+                    "joinphrase": "",
+                    "artist": {
+                        "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+                        "name": "Radiohead"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "1887c325-dfd7-4740-936c-a9ba14afcae1",
+            "title": "Lucky",
+            "primary-type": "Single",
+            "secondary-types": [],
+            "first-release-date": "1997-12",
+            "artist-credit": [
+                {
+                    "name": "Radiohead",
+                    "joinphrase": "",
+                    "artist": {
+                        "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+                        "name": "Radiohead"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "11f16b31-da2e-48b8-90a1-f65014bc8262",
+            "title": "Greenhouse Effect vs. Radiohead",
+            "primary-type": "Album",
+            "secondary-types": [
+                "Remix"
+            ],
+            "first-release-date": "2005-08",
+            "artist-credit": [
+                {
+                    "name": "Greenhouse Effect",
+                    "joinphrase": " vs. ",
+                    "artist": {
+                        "id": "bec9c3ab-7428-4d65-909d-2e024fbcb924",
+                        "name": "Greenhouse"
+                    }
+                },
+                {
+                    "name": "Radiohead",
+                    "joinphrase": "",
+                    "artist": {
+                        "id": "a74b1b7f-71a5-4011-9441-d0b5e4122711",
+                        "name": "Radiohead"
+                    }
+                }
+            ]
+        }
+    ]
+}
