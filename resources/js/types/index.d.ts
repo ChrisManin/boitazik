@@ -59,3 +59,15 @@ export type PageProps<T extends Record<string, unknown> = Record<string, unknown
         success: string | null;
     };
 };
+
+// A release group found on MusicBrainz, as returned by collection.search
+export interface MusicBrainzResult {
+    mbid: string;
+    title: string;
+    artists: string[];
+    year: number | null;
+    // Already a French label (Album, EP, Single…)
+    type: string;
+    // Built without checking the image exists: it may 404
+    cover_url: string;
+}

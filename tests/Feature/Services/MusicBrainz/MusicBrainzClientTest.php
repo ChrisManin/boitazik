@@ -96,3 +96,45 @@ test('it maps a missing release date to a null year', function () {
         ->and($releaseGroup->primaryType)->toBeNull()
         ->and($releaseGroup->artists)->toBe([]);
 });
+
+test('it maps secondary types, empty by default', function () {
+    $live = ReleaseGroup::fromArray([
+        'id' => 'b1392450-e666-3926-a536-22c65f834433',
+        'title' => 'I Might Be Wrong',
+        'primary-type' => 'Album',
+        'secondary-types' => ['Live'],
+    ]);
+    $plain = ReleaseGroup::fromArray(['id' => 'b1392450-e666-3926-a536-22c65f834433', 'title' => 'OK Computer']);
+
+    expect($live->secondaryTypes)->toBe(['Live'])
+        ->and($plain->secondaryTypes)->toBe([]);
+});
+
+test('it looks up a release group by MBID', function () {
+    Http::fake([
+        'musicbrainz.org/ws/2/release-group/*' => Http::response(fixture('MusicBrainz', 'release-group-lookup')),
+    ]);
+
+    $releaseGroup = app(MusicBrainzClient::class)->lookupReleaseGroup('b1392450-e666-3926-a536-22c65f834433');
+
+    expect($releaseGroup)->toBeInstanceOf(ReleaseGroup::class)
+        ->and($releaseGroup->mbid)->toBe('b1392450-e666-3926-a536-22c65f834433')
+        ->and($releaseGroup->title)->toBe('OK Computer')
+        ->and($releaseGroup->primaryType)->toBe('Album')
+        ->and($releaseGroup->secondaryTypes)->toBe([])
+        ->and($releaseGroup->firstReleaseYear)->toBe(1997)
+        ->and($releaseGroup->artists)->toEqual([
+            new ArtistCredit('a74b1b7f-71a5-4011-9441-d0b5e4122711', 'Radiohead'),
+        ]);
+
+    Http::assertSent(fn (Request $request) => str_starts_with($request->url(), 'https://musicbrainz.org/ws/2/release-group/b1392450-e666-3926-a536-22c65f834433?')
+        && $request['inc'] === 'artist-credits'
+        && $request['fmt'] === 'json'
+        && str_starts_with($request->header('User-Agent')[0], 'Boitazik/'));
+});
+
+test('it throws when the looked up release group does not exist', function () {
+    Http::fake(['musicbrainz.org/*' => Http::response(['error' => 'Not Found'], 404)]);
+
+    app(MusicBrainzClient::class)->lookupReleaseGroup('00000000-0000-0000-0000-000000000000');
+})->throws(RequestException::class);

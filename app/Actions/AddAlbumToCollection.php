@@ -12,15 +12,22 @@ use Illuminate\Support\Facades\DB;
 // Adds a copy to a user's collection, reusing the shared catalog to avoid duplicates
 class AddAlbumToCollection
 {
+    public function __construct(private readonly ImportAlbumFromMusicBrainz $importAlbum) {}
+
     /**
-     * @param  array{artist: string, title: string, year?: ?int, format?: ?string, condition?: ?string, acquired_at?: ?string, notes?: ?string}  $data
+     * Either an MBID (album imported from MusicBrainz) or a manual artist and title.
+     *
+     * @param  array{mbid?: ?string, artist?: string, title?: string, year?: ?int, format?: ?string, condition?: ?string, acquired_at?: ?string, notes?: ?string}  $data
+     *
+     * @throws \Illuminate\Http\Client\RequestException|\Illuminate\Http\Client\ConnectionException when the MusicBrainz import fails
      */
     public function handle(User $user, array $data): CollectionItem
     {
-        return DB::transaction(function () use ($user, $data) {
-            $artist = $this->findOrCreateArtist($data['artist']);
-            $year = isset($data['year']) ? (int) $data['year'] : null;
-            $album = $this->findOrCreateAlbum($artist, $data['title'], $year);
+        // The import calls the APIs: it runs before the copy's transaction
+        $imported = isset($data['mbid']) ? $this->importAlbum->handle($data['mbid']) : null;
+
+        return DB::transaction(function () use ($user, $data, $imported) {
+            $album = $imported ?? $this->findOrCreateManualAlbum($data);
 
             $format = isset($data['format']) ? ReleaseFormat::from($data['format']) : null;
             $release = $format ? $album->minimalRelease($format) : null;
@@ -33,6 +40,17 @@ class AddAlbumToCollection
                 'notes' => $data['notes'] ?? null,
             ]);
         });
+    }
+
+    /**
+     * @param  array{artist: string, title: string, year?: ?int}  $data
+     */
+    private function findOrCreateManualAlbum(array $data): Album
+    {
+        $artist = $this->findOrCreateArtist($data['artist']);
+        $year = isset($data['year']) ? (int) $data['year'] : null;
+
+        return $this->findOrCreateAlbum($artist, $data['title'], $year);
     }
 
     private function findOrCreateArtist(string $name): Artist

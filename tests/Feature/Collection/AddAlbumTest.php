@@ -76,6 +76,18 @@ test('a complete album is added to my collection', function () {
         ->and($item->notes)->toBe('Pressage original');
 });
 
+test('an empty mbid keeps the manual entry', function () {
+    // The create form always sends mbid, empty in manual mode
+    $this->actingAs(User::factory()->create())
+        ->post('/collection', ['mbid' => '', 'artist' => 'Air', 'title' => 'Moon Safari', 'year' => 1998])
+        ->assertSessionHasNoErrors()
+        ->assertRedirect('/collection');
+
+    expect(Album::sole()->title)->toBe('Moon Safari')
+        ->and(Album::sole()->first_release_year)->toBe(1998)
+        ->and(Artist::sole()->name)->toBe('Air');
+});
+
 test('the success message is shared with the front', function () {
     $this->actingAs(User::factory()->create())
         ->withSession(['success' => 'Album ajouté à votre collection.'])

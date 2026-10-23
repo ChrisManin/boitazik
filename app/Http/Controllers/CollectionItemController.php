@@ -4,14 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Actions\AddAlbumToCollection;
 use App\Actions\UpdateCollectionItem;
+use App\Enums\AlbumType;
 use App\Enums\ItemCondition;
 use App\Enums\ReleaseFormat;
+use App\Http\Requests\SearchMusicBrainzRequest;
 use App\Http\Requests\StoreCollectionItemRequest;
 use App\Http\Requests\UpdateCollectionItemRequest;
 use App\Http\Resources\CollectionItemResource;
 use App\Http\Resources\EditableCollectionItemResource;
 use App\Models\Album;
 use App\Models\CollectionItem;
+use App\Services\CoverArtArchive\CoverArtArchiveClient;
+use App\Services\MusicBrainz\Data\ArtistCredit;
+use App\Services\MusicBrainz\Data\ReleaseGroup;
+use App\Services\MusicBrainz\MusicBrainzClient;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -57,9 +66,42 @@ class CollectionItemController extends Controller
     {
         $this->authorize('create', CollectionItem::class);
 
-        $addAlbum->handle($request->user(), $request->validated());
+        try {
+            $addAlbum->handle($request->user(), $request->validated());
+        } catch (RequestException|ConnectionException) {
+            return back()
+                ->withErrors(['mbid' => "Impossible d'importer cet album depuis MusicBrainz. Réessayez ou saisissez-le à la main."])
+                ->withInput();
+        }
 
         return redirect()->route('collection.index')->with('success', 'Album ajouté à votre collection.');
+    }
+
+    // Release groups matching the search, for the create form
+    public function search(SearchMusicBrainzRequest $request, MusicBrainzClient $musicBrainz, CoverArtArchiveClient $coverArt): JsonResponse
+    {
+        $this->authorize('create', CollectionItem::class);
+
+        try {
+            $releaseGroups = $musicBrainz->searchReleaseGroups($request->validated('title'), $request->validated('artist'));
+        } catch (RequestException|ConnectionException) {
+            return response()->json(
+                ['message' => "MusicBrainz ne répond pas pour le moment. Réessayez ou saisissez l'album à la main."],
+                503,
+            );
+        }
+
+        return response()->json([
+            'data' => array_map(fn (ReleaseGroup $releaseGroup) => [
+                'mbid' => $releaseGroup->mbid,
+                'title' => $releaseGroup->title,
+                'artists' => array_map(fn (ArtistCredit $credit) => $credit->name, $releaseGroup->artists),
+                'year' => $releaseGroup->firstReleaseYear,
+                'type' => AlbumType::fromMusicBrainz($releaseGroup->primaryType, $releaseGroup->secondaryTypes)->label(),
+                // The front shows a fallback when the image does not load
+                'cover_url' => $coverArt->guessFrontCoverUrl($releaseGroup->mbid),
+            ], $releaseGroups),
+        ]);
     }
 
     public function edit(CollectionItem $item): Response

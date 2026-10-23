@@ -18,9 +18,7 @@ final class CoverArtArchiveClient
      */
     public function frontCoverUrl(string $releaseGroupMbid, int $size = 250): ?string
     {
-        $path = "release-group/{$releaseGroupMbid}/front-{$size}";
-
-        $response = $this->request()->head($path);
+        $response = $this->request()->head($this->frontCoverPath($releaseGroupMbid, $size));
 
         if ($response->notFound()) {
             return null;
@@ -28,7 +26,20 @@ final class CoverArtArchiveClient
 
         $response->throw();
 
-        return rtrim(config('services.coverartarchive.base_url'), '/').'/'.$path;
+        return $this->guessFrontCoverUrl($releaseGroupMbid, $size);
+    }
+
+    /**
+     * Same URL as frontCoverUrl(), built without any call: the cover may not exist.
+     */
+    public function guessFrontCoverUrl(string $releaseGroupMbid, int $size = 250): string
+    {
+        return rtrim(config('services.coverartarchive.base_url'), '/').'/'.$this->frontCoverPath($releaseGroupMbid, $size);
+    }
+
+    private function frontCoverPath(string $releaseGroupMbid, int $size): string
+    {
+        return "release-group/{$releaseGroupMbid}/front-{$size}";
     }
 
     private function request(): PendingRequest
