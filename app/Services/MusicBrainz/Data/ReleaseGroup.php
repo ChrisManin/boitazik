@@ -6,6 +6,7 @@ final class ReleaseGroup
 {
     /**
      * @param  array<int, ArtistCredit>  $artists
+     * @param  array<int, string>  $secondaryTypes
      */
     public function __construct(
         public readonly string $mbid,
@@ -13,6 +14,7 @@ final class ReleaseGroup
         public readonly ?string $primaryType,
         public readonly ?int $firstReleaseYear,
         public readonly array $artists,
+        public readonly array $secondaryTypes = [],
     ) {}
 
     public static function fromArray(array $data): self
@@ -28,6 +30,7 @@ final class ReleaseGroup
                 fn (array $credit) => ArtistCredit::fromArray($credit),
                 $data['artist-credit'] ?? [],
             ),
+            secondaryTypes: array_values($data['secondary-types'] ?? []),
         );
     }
 }

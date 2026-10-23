@@ -31,6 +31,15 @@ final class MusicBrainzClient
         );
     }
 
+    public function lookupReleaseGroup(string $mbid): ReleaseGroup
+    {
+        $response = $this->request()
+            ->get("release-group/{$mbid}", ['inc' => 'artist-credits', 'fmt' => 'json'])
+            ->throw();
+
+        return ReleaseGroup::fromArray($response->json());
+    }
+
     /**
      * Quote a value as a Lucene phrase, escaping the characters that would end it.
      */

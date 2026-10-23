@@ -31,6 +31,9 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    // Declared before the resource so that "search" is not taken for an item
+    Route::get('/collection/search', [CollectionItemController::class, 'search'])->name('collection.search');
+
     Route::resource('collection', CollectionItemController::class)
         ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
         ->parameters(['collection' => 'item']);

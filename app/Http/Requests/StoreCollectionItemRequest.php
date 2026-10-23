@@ -17,9 +17,11 @@ class StoreCollectionItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'artist' => ['required', 'string', 'max:255'],
-            'title' => ['required', 'string', 'max:255'],
-            'year' => ['nullable', 'integer', 'between:1900,'.$this->maxYear()],
+            // With an MBID, the album comes from MusicBrainz: the manual fields are ignored (an empty mbid is null)
+            'mbid' => ['nullable', 'uuid'],
+            'artist' => ['exclude_unless:mbid,null', 'required_without:mbid', 'string', 'max:255'],
+            'title' => ['exclude_unless:mbid,null', 'required_without:mbid', 'string', 'max:255'],
+            'year' => ['exclude_unless:mbid,null', 'nullable', 'integer', 'between:1900,'.$this->maxYear()],
             ...$this->copyRules(),
         ];
     }
@@ -32,9 +34,10 @@ class StoreCollectionItemRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'artist.required' => "L'artiste est obligatoire.",
+            'mbid.uuid' => "L'identifiant MusicBrainz n'est pas valide.",
+            'artist.required_without' => "L'artiste est obligatoire.",
             'artist.max' => "Le nom de l'artiste ne peut pas dépasser 255 caractères.",
-            'title.required' => 'Le titre est obligatoire.',
+            'title.required_without' => 'Le titre est obligatoire.',
             'title.max' => 'Le titre ne peut pas dépasser 255 caractères.',
             'year.integer' => "L'année doit être un nombre.",
             'year.between' => "L'année doit être comprise entre 1900 et ".$this->maxYear().'.',
