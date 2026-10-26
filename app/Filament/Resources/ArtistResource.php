@@ -2,10 +2,14 @@
 
 namespace App\Filament\Resources;
 
+use App\Actions\MergeArtist;
 use App\Filament\Resources\ArtistResource\Pages;
 use App\Models\Artist;
+use Filament\Actions\MountableAction;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
+use Filament\Resources\Pages\EditRecord;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -72,7 +76,70 @@ class ArtistResource extends Resource
             ->defaultSort('name')
             ->actions([
                 Tables\Actions\EditAction::make(),
+                static::configureMergeAction(Tables\Actions\Action::make('merge')),
+                static::configureDeleteAction(Tables\Actions\DeleteAction::make()),
             ]);
+    }
+
+    // Shared by the list and the edit page, whose action classes differ
+    public static function configureDeleteAction(MountableAction $action): MountableAction
+    {
+        // The pivot rows cascade: the albums stay in the catalog
+        return $action->modalDescription(fn (Artist $record) => sprintf(
+            'Cet artiste sera retiré de %d album(s), qui seront conservés.',
+            $record->albums()->count(),
+        ));
+    }
+
+    public static function configureMergeAction(MountableAction $action): MountableAction
+    {
+        return $action
+            ->label('Fusionner dans…')
+            ->icon('heroicon-o-arrows-pointing-in')
+            ->color('warning')
+            ->modalHeading(fn (Artist $record) => "Fusionner « {$record->name} »")
+            ->modalDescription(fn (Artist $record) => sprintf(
+                'Ses %d album(s) seront rattachés à l\'artiste choisi, qui garde ses propres valeurs. Cet artiste sera ensuite supprimé.',
+                $record->albums()->count(),
+            ))
+            ->modalSubmitActionLabel('Fusionner')
+            ->form(fn (Artist $record) => [
+                Forms\Components\Select::make('target_id')
+                    ->label('Artiste cible')
+                    ->searchable()
+                    ->getSearchResultsUsing(fn (string $search) => Artist::whereKeyNot($record->id)
+                        ->where(fn ($query) => $query
+                            ->where('name', 'like', "%{$search}%")
+                            ->orWhere('mbid', $search))
+                        ->orderBy('name')
+                        ->limit(50)
+                        ->get()
+                        ->mapWithKeys(fn (Artist $artist) => [$artist->id => static::artistOptionLabel($artist)]))
+                    ->getOptionLabelUsing(fn ($value) => ($artist = Artist::find($value))
+                        ? static::artistOptionLabel($artist)
+                        : null)
+                    ->required()
+                    ->exists(Artist::class, 'id')
+                    ->notIn([$record->id]),
+            ])
+            ->action(function (MountableAction $action, Artist $record, array $data, $livewire) {
+                $target = app(MergeArtist::class)->handle($record, Artist::findOrFail($data['target_id']));
+
+                Notification::make()->success()->title("Artiste fusionné dans « {$target->name} »")->send();
+
+                // The edited artist no longer exists: show the one that took its place
+                if ($livewire instanceof EditRecord) {
+                    $action->redirect(static::getUrl('edit', ['record' => $target]));
+                }
+            });
+    }
+
+    // Duplicates usually share a name: country and MBID tell them apart
+    public static function artistOptionLabel(Artist $artist): string
+    {
+        return $artist->name
+            .($artist->country === null ? '' : " ({$artist->country})")
+            .($artist->mbid === null ? '' : " — {$artist->mbid}");
     }
 
     public static function getPages(): array

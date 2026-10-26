@@ -14,15 +14,12 @@ use App\Models\Album;
 use App\Models\Artist;
 use App\Models\Release;
 use App\Models\User;
+use Filament\Facades\Filament;
+use Filament\Support\Enums\MaxWidth;
 use Filament\Tables\Actions\AttachAction;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\EditAction;
 use Livewire\Livewire;
-
-function admin(): User
-{
-    return User::factory()->create(['is_admin' => true]);
-}
 
 dataset('catalog resources', [
     'artists' => ['artists', fn () => Artist::factory()->create()],
@@ -54,6 +51,18 @@ test('regular users cannot reach catalog resources', function (string $slug, Clo
         $this->get($url)->assertForbidden();
     }
 })->with('catalog resources');
+
+test('lists have a pagination above and below the table', function () {
+    Album::factory()->count(11)->create();
+
+    $html = $this->actingAs(admin())->get('/admin/albums')->assertOk()->getContent();
+
+    expect(substr_count($html, 'fi-ta-pagination'))->toBe(2);
+});
+
+test('the admin panel uses the full screen width', function () {
+    expect(Filament::getPanel('admin')->getMaxContentWidth())->toBe(MaxWidth::Full);
+});
 
 test('artists can be searched by MBID', function () {
     $wanted = Artist::factory()->create();
