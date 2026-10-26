@@ -91,6 +91,19 @@ test('a manual artist linked to MusicBrainz queues the import', function () {
     Queue::assertPushed(ImportArtistDiscography::class);
 });
 
+test('correcting the MBID of a recently enriched artist queues the import', function () {
+    Queue::fake();
+    $artist = Artist::create([
+        'name' => 'Radiohead',
+        'mbid' => 'a74b1b7f-71a5-4011-9441-d0b5e4122711',
+        'enriched_at' => now()->subDay(),
+    ]);
+
+    $artist->update(['mbid' => 'b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d']);
+
+    Queue::assertPushed(ImportArtistDiscography::class);
+});
+
 test('updating another field of an artist queues nothing', function () {
     $artist = radiohead();
     Queue::fake();
