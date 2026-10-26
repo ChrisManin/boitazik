@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -11,4 +12,9 @@ uses(TestCase::class, RefreshDatabase::class)->in('Feature');
 function fixture(string $api, string $name): array
 {
     return json_decode(file_get_contents(base_path("tests/Fixtures/{$api}/{$name}.json")), true);
+}
+
+function admin(): User
+{
+    return User::factory()->create(['is_admin' => true]);
 }

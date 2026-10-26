@@ -26,6 +26,9 @@ class ImportArtistDiscography implements ShouldBeUnique, ShouldQueue
 
     public int $tries = 3;
 
+    // An artist deleted or merged in the back office before the job runs: nothing left to import
+    public bool $deleteWhenMissingModels = true;
+
     private const PRIMARY_TYPES = ['Album', 'EP'];
 
     // Release groups that are not music, whatever their primary type

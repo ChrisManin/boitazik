@@ -51,6 +51,11 @@ class Album extends Model
         return $this->hasMany(Release::class);
     }
 
+    public function collectionItems(): HasMany
+    {
+        return $this->hasMany(CollectionItem::class);
+    }
+
     // Only a release with no detail is reused: a detailed one is a specific pressing
     public function minimalRelease(ReleaseFormat $format): Release
     {
