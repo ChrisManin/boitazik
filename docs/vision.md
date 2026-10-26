@@ -21,6 +21,7 @@
 - **Multi-utilisateur** : chaque compte a sa propre collection. Le catalogue (artistes, albums, éditions) est partagé.
 - **Exemplaire précis** : on enregistre l'édition (pressage) : format, label, n° de catalogue, pays, année, code-barres. L'édition peut rester inconnue (on ne connaît alors que l'album).
 - **Front et back-office séparés** : toutes les pages et tous les formulaires des utilisateurs sont en Vue 3 + Inertia. Filament `/admin` est réservé aux administrateurs, qui y gèrent le catalogue et les collections de tous les utilisateurs. Aucune fonctionnalité utilisateur dans Filament.
+- **Suppression dans le catalogue** : aucun utilisateur ne perd un exemplaire. Un album possédé ne se supprime pas : l'admin le fusionne dans le bon album (exemplaires et éditions déplacés). Un artiste supprimé est seulement retiré de ses albums, sauf s'il est fusionné dans le bon artiste (ticket #38).
 - **Tests** : TDD par tranche verticale. Les tests ne touchent jamais la base de dev (sqlite `:memory:`), et aucun appel HTTP réel en test (`Http::fake()`).
 
 ## API externes (proposition, à confirmer ticket par ticket)

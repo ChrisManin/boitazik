@@ -2,8 +2,13 @@
 
 namespace App\Enums;
 
-enum AlbumType: string
+use App\Enums\Concerns\HasFilamentLabel;
+use Filament\Support\Contracts\HasLabel;
+
+enum AlbumType: string implements HasLabel
 {
+    use HasFilamentLabel;
+
     case Album = 'album';
     case Ep = 'ep';
     case Single = 'single';

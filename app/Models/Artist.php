@@ -42,16 +42,17 @@ class Artist extends Model
     {
         // After commit: the job must not run before the artist exists for the queue worker
         static::created(fn (Artist $artist) => $artist->queueDiscographyImport());
+        // A new MBID is another discography: it is imported even if the old one is fresh
         static::updated(function (Artist $artist) {
             if ($artist->wasChanged('mbid')) {
-                $artist->queueDiscographyImport();
+                $artist->queueDiscographyImport(force: true);
             }
         });
     }
 
-    private function queueDiscographyImport(): void
+    private function queueDiscographyImport(bool $force = false): void
     {
-        if ($this->mbid !== null && $this->needsDiscographyImport()) {
+        if ($this->mbid !== null && ($force || $this->needsDiscographyImport())) {
             ImportArtistDiscography::dispatch($this)->afterCommit();
         }
     }
