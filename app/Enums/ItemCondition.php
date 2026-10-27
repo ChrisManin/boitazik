@@ -2,11 +2,14 @@
 
 namespace App\Enums;
 
+use App\Enums\Concerns\HasFilamentLabel;
 use App\Enums\Concerns\HasSelectOptions;
+use Filament\Support\Contracts\HasLabel;
 
 // Goldmine grading scale used by record collectors
-enum ItemCondition: string
+enum ItemCondition: string implements HasLabel
 {
+    use HasFilamentLabel;
     use HasSelectOptions;
 
     case Mint = 'mint';
