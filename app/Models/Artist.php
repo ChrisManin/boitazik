@@ -24,6 +24,7 @@ class Artist extends Model
         'country',
         'image_url',
         'enriched_at',
+        'discography_failed_at',
     ];
 
     /**
@@ -33,6 +34,7 @@ class Artist extends Model
      */
     protected $casts = [
         'enriched_at' => 'datetime',
+        'discography_failed_at' => 'datetime',
     ];
 
     // The discography is fetched again from MusicBrainz after this many days

@@ -45,7 +45,7 @@ test('the collection page only shows my items', function () {
             ->has('items.data.0', fn (Assert $item) => $item
                 ->where('id', $mine->id)
                 ->where('title', 'Homogenic')
-                ->where('artists', ['Björk'])
+                ->where('artists', [['id' => $mine->album->artists->first()->id, 'name' => 'Björk']])
                 ->where('year', $mine->album->first_release_year)
                 ->where('format', 'Vinyle')
                 ->where('cover_url', null)

@@ -45,7 +45,7 @@ const removal = useForm({});
                     <div>
                         <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ item.title }}</p>
                         <p class="text-sm text-gray-600 dark:text-gray-400">
-                            {{ item.artists.join(', ') || 'Artiste inconnu' }}
+                            {{ item.artists.map((artist) => artist.name).join(', ') || 'Artiste inconnu' }}
                             <span v-if="item.year"> · {{ item.year }}</span>
                         </p>
                     </div>

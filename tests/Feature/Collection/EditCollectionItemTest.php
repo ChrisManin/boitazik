@@ -40,7 +40,7 @@ test('the edit page shows the item and the form options', function () {
                 'id' => $item->id,
                 'title' => 'Discovery',
                 'cover_url' => $album->cover_url,
-                'artists' => ['Daft Punk'],
+                'artists' => [['id' => $artist->id, 'name' => 'Daft Punk']],
                 'year' => 2001,
                 'format' => 'vinyl',
                 'condition' => 'near_mint',
