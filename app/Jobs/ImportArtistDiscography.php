@@ -18,6 +18,7 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 // Brings every album of an artist into the shared catalog; the MusicBrainz client keeps to its rate limit
 class ImportArtistDiscography implements ShouldBeUnique, ShouldQueue
@@ -25,6 +26,9 @@ class ImportArtistDiscography implements ShouldBeUnique, ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;
+
+    // A big discography takes minutes: one cover lookup per new album. Keep it below the queue's retry_after
+    public int $timeout = 600;
 
     // An artist deleted or merged in the back office before the job runs: nothing left to import
     public bool $deleteWhenMissingModels = true;
@@ -51,13 +55,26 @@ class ImportArtistDiscography implements ShouldBeUnique, ShouldQueue
 
     public function handle(MusicBrainzClient $musicBrainz, CoverArtArchiveClient $coverArt): void
     {
+        $country = $this->artist->country === null ? $this->lookupCountry($musicBrainz) : null;
+
         foreach ($musicBrainz->browseArtistReleaseGroups($this->artist->mbid) as $releaseGroup) {
             if ($this->belongsInDiscography($releaseGroup)) {
                 $this->importAlbum($releaseGroup, $coverArt);
             }
         }
 
-        $this->artist->update(['enriched_at' => now()]);
+        // Reloaded: a country typed in the back office during the import is kept
+        $this->artist->refresh()->update([
+            'country' => $this->artist->country ?? $country,
+            'enriched_at' => now(),
+            'discography_failed_at' => null,
+        ]);
+    }
+
+    // All tries used up: the artist page stops saying the discography is on its way
+    public function failed(Throwable $exception): void
+    {
+        $this->artist->update(['discography_failed_at' => now()]);
     }
 
     // Albums and EPs, live or compilation included; singles and broadcasts are left out
@@ -115,6 +132,16 @@ class ImportArtistDiscography implements ShouldBeUnique, ShouldQueue
         $position = array_search($this->artist->mbid, $mbids, true);
 
         return $position !== false ? $position : $album->artists()->count();
+    }
+
+    // A missing country never blocks the import
+    private function lookupCountry(MusicBrainzClient $musicBrainz): ?string
+    {
+        try {
+            return $musicBrainz->lookupArtist($this->artist->mbid)->country;
+        } catch (RequestException|ConnectionException) {
+            return null;
+        }
     }
 
     // A missing cover never blocks the import

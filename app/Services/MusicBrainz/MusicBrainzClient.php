@@ -2,6 +2,7 @@
 
 namespace App\Services\MusicBrainz;
 
+use App\Services\MusicBrainz\Data\Artist;
 use App\Services\MusicBrainz\Data\Release;
 use App\Services\MusicBrainz\Data\ReleaseGroup;
 use Illuminate\Http\Client\PendingRequest;
@@ -39,6 +40,15 @@ final class MusicBrainzClient
             ->throw();
 
         return ReleaseGroup::fromArray($response->json());
+    }
+
+    public function lookupArtist(string $mbid): Artist
+    {
+        $response = $this->request()
+            ->get("artist/{$mbid}", ['fmt' => 'json'])
+            ->throw();
+
+        return Artist::fromArray($response->json());
     }
 
     /**

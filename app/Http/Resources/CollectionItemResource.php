@@ -22,7 +22,7 @@ class CollectionItemResource extends JsonResource
             'title' => $this->album->title,
             'cover_url' => $this->album->cover_url,
             'year' => $this->album->first_release_year,
-            'artists' => $this->album->artists->pluck('name')->all(),
+            'artists' => $this->album->artists->map->only('id', 'name')->all(),
             'format' => $this->release?->format?->label(),
         ];
     }

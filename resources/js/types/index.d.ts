@@ -5,12 +5,18 @@ export interface User {
     email_verified_at: string;
 }
 
+// An artist credited on an album, enough to link to their page
+export interface ArtistRef {
+    id: number;
+    name: string;
+}
+
 export interface CollectionItem {
     id: number;
     title: string;
     cover_url: string | null;
     year: number | null;
-    artists: string[];
+    artists: ArtistRef[];
     format: string | null;
 }
 
@@ -19,6 +25,28 @@ export interface EditableCollectionItem extends CollectionItem {
     condition: string | null;
     acquired_at: string | null;
     notes: string | null;
+}
+
+export interface ArtistDetail extends ArtistRef {
+    // ISO 3166-1 alpha-2 code
+    country: string | null;
+    image_url: string | null;
+}
+
+export interface DiscographyAlbum {
+    id: number;
+    title: string;
+    year: number | null;
+    cover_url: string | null;
+    // In the current user's collection
+    owned: boolean;
+}
+
+// The artist's albums of one type, sorted by year
+export interface DiscographyGroup {
+    type: string;
+    label: string;
+    albums: DiscographyAlbum[];
 }
 
 // An enum case offered in a form select

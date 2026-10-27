@@ -4,6 +4,7 @@ use App\Enums\AlbumType;
 use App\Jobs\ImportArtistDiscography;
 use App\Models\Album;
 use App\Models\Artist;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
@@ -27,6 +28,7 @@ function radiohead(array $attributes = []): Artist
 function fakeDiscography(): void
 {
     Http::fake([
+        'musicbrainz.org/ws/2/artist/*' => Http::response(fixture('MusicBrainz', 'artist-lookup')),
         'musicbrainz.org/ws/2/release-group*' => Http::sequence()
             ->push(fixture('MusicBrainz', 'release-group-browse-page-1'))
             ->push(fixture('MusicBrainz', 'release-group-browse-page-2'))
@@ -121,6 +123,78 @@ test('the import runs on the queue, unique per artist, with retries', function (
         ->and($job->uniqueId())->toBe((string) $job->artist->id)
         ->and($job->tries)->toBe(3)
         ->and($job->backoff())->toBe([60, 300]);
+});
+
+// A big discography takes minutes (one cover lookup per new album)
+test('the import has time to finish and is not handed to a second worker meanwhile', function () {
+    $job = new ImportArtistDiscography(radiohead());
+
+    expect($job->timeout)->toBeGreaterThanOrEqual(600);
+    foreach (['database', 'redis', 'beanstalkd'] as $connection) {
+        expect(config("queue.connections.{$connection}.retry_after"))->toBeGreaterThan($job->timeout);
+    }
+});
+
+test('it fills the artist country from MusicBrainz', function () {
+    fakeDiscography();
+    $artist = radiohead(['country' => null]);
+
+    importDiscography($artist);
+
+    expect($artist->fresh()->country)->toBe('GB');
+});
+
+test('it does not look the artist up when the country is already known', function () {
+    fakeDiscography();
+    $artist = radiohead(['country' => 'FR']);
+
+    importDiscography($artist);
+
+    expect($artist->fresh()->country)->toBe('FR');
+    Http::assertNotSent(fn (Request $request) => str_contains($request->url(), '/ws/2/artist/'));
+});
+
+test('a failed artist lookup does not stop the discography import', function () {
+    Http::fake(['musicbrainz.org/ws/2/artist/*' => Http::response(['error' => 'Service unavailable'], 503)]);
+    fakeDiscography();
+    $artist = radiohead(['country' => null]);
+
+    importDiscography($artist);
+
+    expect($artist->albums()->count())->toBe(3)
+        ->and($artist->fresh()->country)->toBeNull()
+        ->and($artist->fresh()->enriched_at)->not->toBeNull();
+});
+
+test('a country typed in the back office during the import is kept', function () {
+    $artist = radiohead(['country' => null]);
+    Http::fake(['musicbrainz.org/ws/2/artist/*' => function () use ($artist) {
+        DB::table('artists')->where('id', $artist->id)->update(['country' => 'FR']);
+
+        return Http::response(fixture('MusicBrainz', 'artist-lookup'));
+    }]);
+    fakeDiscography();
+
+    importDiscography($artist);
+
+    expect($artist->fresh()->country)->toBe('FR');
+});
+
+test('an import that fails for good is recorded on the artist', function () {
+    $artist = radiohead();
+
+    (new ImportArtistDiscography($artist))->failed(new RuntimeException('MusicBrainz is down'));
+
+    expect($artist->fresh()->discography_failed_at)->not->toBeNull();
+});
+
+test('a successful import clears a previous failure', function () {
+    fakeDiscography();
+    $artist = radiohead(['discography_failed_at' => now()->subDay()]);
+
+    importDiscography($artist);
+
+    expect($artist->fresh()->discography_failed_at)->toBeNull();
 });
 
 test('it imports the albums of every page and links them to the artist', function () {

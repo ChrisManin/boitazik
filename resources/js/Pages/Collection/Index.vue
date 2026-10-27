@@ -70,7 +70,13 @@ function paginationLabel(link: PaginationLink): string {
                                     {{ item.title }}
                                 </p>
                                 <p class="text-gray-600 dark:text-gray-400 truncate">
-                                    {{ item.artists.join(', ') || 'Artiste inconnu' }}
+                                    <template v-for="(artist, index) in item.artists" :key="artist.id">
+                                        <template v-if="index > 0">, </template>
+                                        <Link :href="route('artists.show', artist.id)" class="hover:underline">
+                                            {{ artist.name }}
+                                        </Link>
+                                    </template>
+                                    <template v-if="item.artists.length === 0">Artiste inconnu</template>
                                 </p>
                                 <p class="mt-1 text-gray-500 dark:text-gray-500">
                                     <span v-if="item.year">{{ item.year }}</span>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\MusicBrainz\Data\Artist;
 use App\Services\MusicBrainz\Data\ArtistCredit;
 use App\Services\MusicBrainz\Data\Release;
 use App\Services\MusicBrainz\Data\ReleaseGroup;
@@ -329,4 +330,28 @@ test('it throws when browsing release groups fails', function () {
     Http::fake(['musicbrainz.org/*' => Http::response(null, 503)]);
 
     app(MusicBrainzClient::class)->browseArtistReleaseGroups('a74b1b7f-71a5-4011-9441-d0b5e4122711');
+})->throws(RequestException::class);
+
+test('it looks up an artist by MBID', function () {
+    Http::fake(['musicbrainz.org/ws/2/artist/*' => Http::response(fixture('MusicBrainz', 'artist-lookup'))]);
+
+    $artist = app(MusicBrainzClient::class)->lookupArtist('a74b1b7f-71a5-4011-9441-d0b5e4122711');
+
+    expect($artist)->toEqual(new Artist('a74b1b7f-71a5-4011-9441-d0b5e4122711', 'Radiohead', 'GB'));
+
+    Http::assertSent(fn (Request $request) => str_starts_with($request->url(), 'https://musicbrainz.org/ws/2/artist/a74b1b7f-71a5-4011-9441-d0b5e4122711?')
+        && $request['fmt'] === 'json'
+        && str_starts_with($request->header('User-Agent')[0], 'Boitazik/'));
+});
+
+test('it maps an artist without country to a null country', function (mixed $country) {
+    Http::fake(['musicbrainz.org/ws/2/artist/*' => Http::response([...fixture('MusicBrainz', 'artist-lookup'), 'country' => $country])]);
+
+    expect(app(MusicBrainzClient::class)->lookupArtist('a74b1b7f-71a5-4011-9441-d0b5e4122711')->country)->toBeNull();
+})->with([null, '']);
+
+test('it throws when the looked up artist does not exist', function () {
+    Http::fake(['musicbrainz.org/*' => Http::response(['error' => 'Not Found'], 404)]);
+
+    app(MusicBrainzClient::class)->lookupArtist('00000000-0000-0000-0000-000000000000');
 })->throws(RequestException::class);
